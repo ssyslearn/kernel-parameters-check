@@ -34,12 +34,13 @@ def print_horizontal_line(n):
 def print_columns():
 	print '%*s %*s %*s %*s\n' % (-key_len, 'KERNEL PARAMETER', -value_len, 'ORG VALUE', -value_len, 'CONF VALUE', -value_len, 'LIVE VALUE')
 
-def print_params(live_dict, key_len, value_len):
+def print_params(except_list, merge_dcit, live_dict, key_len, value_len):
 	for key in live_dict:
 		if key in except_list:
 			continue
-		if merge_dict[key] != live_dict[key]:
-			print '%*s %*s %*s %*s\n' % (-key_len, key, -value_len, org_dict[key], -value_len, merge_dict[key], -value_len, live_dict[key])
+		if key in merge_dict and key in live_dict:
+			if merge_dict[key] != live_dict[key]:
+				print '%*s %*s %*s %*s\n' % (-key_len, key, -value_len, org_dict[key], -value_len, merge_dict[key], -value_len, live_dict[key])
 
 
 if __name__ == "__main__":
@@ -65,8 +66,9 @@ if __name__ == "__main__":
     #print conf_dict
 
     for key in conf_dict:
-        if conf_dict[key] != org_dict[key]:
-            merge_dict[key] = conf_dict[key]
+		if key in conf_dict and key in org_dict:
+			if conf_dict[key] != org_dict[key]:
+				merge_dict[key] = conf_dict[key]
     #print merge_dict
 
     live_list = subprocess.Popen(["sysctl", "-a"], stdout=subprocess.PIPE).communicate()[0]
@@ -77,5 +79,5 @@ if __name__ == "__main__":
     print_horizontal_line(n)
     print_columns()
     print_horizontal_line(n)
-    print_params(live_dict, key_len, value_len)
+    print_params(except_list, merge_dict, live_dict, key_len, value_len)
     print_horizontal_line(n)

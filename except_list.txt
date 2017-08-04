@@ -6,3 +6,4 @@ fs.inode-nr
 fs.file-nr
 kernel.random.entropy_avail
 kernel.pty.nr
+kernel.random.boot_id
