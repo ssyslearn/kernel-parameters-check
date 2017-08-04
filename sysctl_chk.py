@@ -11,46 +11,35 @@ def lines_to_dict(lines):
         dict[line.split('=')[0].strip()] = line.split('=')[1].strip()
     return dict
 
-def calculate_line_length(live_dict, key_len, value_len):
+def calculate_line_length(live_dict, except_list):
+	key_len = 0
+	value_len = 0
 	for key in live_dict:
+
+		if key in except_list:
+			continue
+
 		if len(key) > key_len:
 			key_len = len(key) + 2
 		if len(live_dict[key]) > value_len:
 			value_len = len(live_dict[key]) + 2
-	return key_len + value_len*2 + 4 
+	return key_len + value_len*2 + 4 , key_len, value_len
 
 def print_horizontal_line(n):
 	for i in range(n):
 		print '=',
 	print '\n'
-	return
 
 
 def print_columns():
-	print 'KERNEL PARAMETER',
-	print ' ' * key_len,
-	print 'ORG VALUE',
-	print ' ' * value_len,
-	print 'CONF VALUE',
-	print ' ' * value_len,
-	print 'LIVE VALUE',
-	print ' ' * value_len,
-	print '\n'
-	return
+	print '%*s %*s %*s %*s\n' % (-key_len, 'KERNEL PARAMETER', -value_len, 'ORG VALUE', -value_len, 'CONF VALUE', -value_len, 'LIVE VALUE')
 
 def print_params(live_dict, key_len, value_len):
 	for key in live_dict:
+		if key in except_list:
+			continue
 		if merge_dict[key] != live_dict[key]:
-			print key,
-			print ' ' * key_len,
-			print org_dict[key],
-			print ' ' * value_len,
-			print merge_dict[key],
-			print ' ' * value_len,
-			print live_dict[key],
-			print ' ' * value_len,
-			print '\n'
-	return
+			print '%*s %*s %*s %*s\n' % (-key_len, key, -value_len, org_dict[key], -value_len, merge_dict[key], -value_len, live_dict[key])
 
 
 if __name__ == "__main__":
@@ -84,9 +73,7 @@ if __name__ == "__main__":
     live_dict = lines_to_dict(live_list.strip().split('\n'))
     #print live_dict
 
-    key_len = 0
-    value_len = 0
-    n = calculate_line_length(live_dict, key_len, value_len)
+    n, key_len, value_len = calculate_line_length(live_dict, except_list)
     print_horizontal_line(n)
     print_columns()
     print_horizontal_line(n)
