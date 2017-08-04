@@ -2,9 +2,6 @@
 import re
 import subprocess
 
-except_src = './except_list.txt'
-org_src = './sysctl.conf.org'
-conf_src = '/etc/sysctl.conf'
 
 def lines_to_dict(lines):
     dict = {}
@@ -14,8 +11,53 @@ def lines_to_dict(lines):
         dict[line.split('=')[0].strip()] = line.split('=')[1].strip()
     return dict
 
+def calculate_line_length(live_dict, key_len, value_len):
+	for key in live_dict:
+		if len(key) > key_len:
+			key_len = len(key) + 2
+		if len(live_dict[key]) > value_len:
+			value_len = len(live_dict[key]) + 2
+	return key_len + value_len*2 + 4 
+
+def print_horizontal_line(n):
+	for i in range(n):
+		print '=',
+	print '\n'
+	return
+
+
+def print_columns():
+	print 'KERNEL PARAMETER',
+	print ' ' * key_len,
+	print 'ORG VALUE',
+	print ' ' * value_len,
+	print 'CONF VALUE',
+	print ' ' * value_len,
+	print 'LIVE VALUE',
+	print ' ' * value_len,
+	print '\n'
+	return
+
+def print_params(live_dict, key_len, value_len):
+	for key in live_dict:
+		if merge_dict[key] != live_dict[key]:
+			print key,
+			print ' ' * key_len,
+			print org_dict[key],
+			print ' ' * value_len,
+			print merge_dict[key],
+			print ' ' * value_len,
+			print live_dict[key],
+			print ' ' * value_len,
+			print '\n'
+	return
+
 
 if __name__ == "__main__":
+    except_src = './except_list.txt'
+    org_src = './sysctl.conf.org'
+    conf_src = '/etc/sysctl.conf'
+    
     merge_dict = {}
 
     with open(except_src, 'r') as f:
@@ -41,3 +83,12 @@ if __name__ == "__main__":
     live_list = subprocess.Popen(["sysctl", "-a"], stdout=subprocess.PIPE).communicate()[0]
     live_dict = lines_to_dict(live_list.strip().split('\n'))
     #print live_dict
+
+    key_len = 0
+    value_len = 0
+    n = calculate_line_length(live_dict, key_len, value_len)
+    print_horizontal_line(n)
+    print_columns()
+    print_horizontal_line(n)
+    print_params(live_dict, key_len, value_len)
+    print_horizontal_line(n)
