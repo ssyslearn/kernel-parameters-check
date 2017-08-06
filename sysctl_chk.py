@@ -2,16 +2,16 @@
 import re
 import subprocess
 
-
 def lines_to_dict(lines):
     dict = {}
-    lines[:] = [s.split('#')[0].strip() for s in lines if re.match(r'^[^ #]+', s)]
+    lines[:] = [s.strip() for s in lines if re.match(r'^\s*[^ #]+', s)]
+    #lines[:] = [s.split('#')[0].strip() for s in lines if re.match(r'^[^ #]+', s)]
     lines[:] = [re.sub(r'\s+', ' ', s) for s in lines]
     for line in lines:
         dict[line.split('=')[0].strip()] = line.split('=')[1].strip()
     return dict
 
-def calculate_line_length(live_dict, except_list):
+def calculate_line_length(except_list, live_dict):
 	key_len = 0
 	value_len = 0
 	for key in live_dict:
@@ -23,18 +23,16 @@ def calculate_line_length(live_dict, except_list):
 			key_len = len(key) + 2
 		if len(live_dict[key]) > value_len:
 			value_len = len(live_dict[key]) + 2
-	return key_len + value_len*2 + 4 , key_len, value_len
+	return key_len + value_len*3 + 2, key_len, value_len
 
 def print_horizontal_line(n):
-	for i in range(n):
-		print '=',
-	print '\n'
+	print '=' * n, '\n'
 
 
 def print_columns():
 	print '%*s %*s %*s %*s\n' % (-key_len, 'KERNEL PARAMETER', -value_len, 'ORG VALUE', -value_len, 'CONF VALUE', -value_len, 'LIVE VALUE')
 
-def print_params(except_list, merge_dcit, live_dict, key_len, value_len):
+def print_params(except_list, merge_dict, live_dict, key_len, value_len):
 	for key in live_dict:
 		if key in except_list:
 			continue
@@ -68,7 +66,7 @@ if __name__ == "__main__":
     with open(conf_src, 'r') as f:
         conf_lines = f.read().splitlines()
         conf_dict = lines_to_dict(conf_lines)
-    #print conf_dict
+    print conf_dict
 
     for key in conf_dict:
 		merge_dict[key] = conf_dict[key]
@@ -78,9 +76,12 @@ if __name__ == "__main__":
     live_dict = lines_to_dict(live_list.strip().split('\n'))
     #print live_dict
 
-    n, key_len, value_len = calculate_line_length(live_dict, except_list)
+    n, key_len, value_len = calculate_line_length(except_list, live_dict)
     print_horizontal_line(n)
     print_columns()
     print_horizontal_line(n)
     print_params(except_list, merge_dict, live_dict, key_len, value_len)
     print_horizontal_line(n)
+
+    print key_len, value_len
+    print n

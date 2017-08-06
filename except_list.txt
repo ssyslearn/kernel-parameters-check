@@ -1,9 +1,9 @@
 net.core.netdev_rss_key
-kernel.random.uuid
-fs.inode-state
-fs.dentry-state
-fs.inode-nr
-fs.file-nr
+#kernel.random.uuid
+#fs.inode-state
+#fs.dentry-state
+#fs.inode-nr
+#fs.file-nr
 #kernel.random.entropy_avail
 #kernel.pty.nr
 #kernel.random.boot_id
