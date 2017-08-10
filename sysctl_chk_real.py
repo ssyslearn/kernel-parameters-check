@@ -13,7 +13,7 @@ def lines_to_dict(lines):
 def calculate_line_length(except_list, live_dict):
     key_len = 0
     value_len = 0
-    combined = "|".join(except_list)
+    combined = "|".join(except_list) or "No Exception List"
     for key in live_dict:
         if re.match(combined, key):
             continue
@@ -48,16 +48,17 @@ def verify_params(except_list, merge_dict, live_dict, key_len, value_len):
                     diff_list.append(key)
         else:
             # only sysctl -w OR live_value ( ex. fs.xfs.* )
-            merge_dict[key] = ""
             org_dict[key] = ""
+            merge_dict[key] = ""
             live_load_list.append(key)
     return diff_list, live_load_list
+
 
 if __name__ == "__main__":
     except_src = './except_list.txt'
     org_src = './sysctl.conf.org'
     conf_src = '/etc/sysctl.conf'
-    
+
     merge_dict = {}
 
     with open(except_src, 'r') as f:
@@ -93,7 +94,7 @@ if __name__ == "__main__":
 
     # print live load parameters
     print_horizontal_line(n)
-    print '%*s %*s' % (-key_len, 'Live Load Parameter', -value_len, 'LIVE VALUE') 
+    print '%*s %*s' % (-key_len, 'Live Load Parameter', -value_len, 'LIVE VALUE')
     print_horizontal_line(n)
     for key in live_load_list:
         print '%*s %*s\n' % (-key_len, key, -value_len, live_dict[key])
